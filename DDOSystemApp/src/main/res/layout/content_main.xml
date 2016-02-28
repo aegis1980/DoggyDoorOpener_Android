@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".MainActivity"
+    tools:showIn="@layout/activity_main">
+
+
+    <include layout="@layout/door_controller_cardview"
+        android:id="@+id/door_controller_card_view"/>
+
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/cardview_bluetooth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardUseCompatPadding="true"
+        card_view:cardCornerRadius="4dp"
+        card_view:cardPreventCornerOverlap="false">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView_btstatus"
+                android:src="@drawable/bt_not_setup"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginRight="6dp"/>
+
+            <TextView
+                android:id="@+id/textView_btconnectionstatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:text="@string/bt_connected_message"
+                android:fontFamily="sans-serif-light"
+                android:layout_toRightOf="@+id/imageView_btstatus"
+                />
+
+            <TextView
+                android:id="@+id/textView_btrangestatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:text="holder"
+                android:fontFamily="sans-serif-light"
+                android:layout_toRightOf="@+id/imageView_btstatus"
+                android:layout_below="@+id/textView_btconnectionstatus"/>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/datalog_textview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardUseCompatPadding="true"
+        card_view:cardCornerRadius="4dp"
+        card_view:cardPreventCornerOverlap="false">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars = "vertical"
+        android:text=""
+        android:id="@+id/textView_dataincoming"
+        android:layout_centerHorizontal="true" />
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

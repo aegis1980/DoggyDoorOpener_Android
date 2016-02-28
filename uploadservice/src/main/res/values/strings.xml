@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="notif_file_upload">File Upload</string>
+    <string name="notif_file_upload_in_progress">File upload in progress</string>
+    <string name="notif_file_upload_complete">File upload completed successfully!</string>
+    <string name="notif_file_upload_error">Error during file upload :(</string>
+
+</resources>

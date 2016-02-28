@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">DDOCommsLibrary</string>
+    <string name="gcm_send_message">Token retrieved and sent to server! You can now use gcmsender to
+        send downstream messages to this app.</string>
+    <string name="registering_message">Generating InstanceID token...</string>
+    <string name="token_error_message">An error occurred while either fetching the InstanceID token,
+        sending the fetched token to the server or subscribing to the PubSub topic. Please try
+        running the sample again.</string>
+
+    <!-- unique project number in Google developer console -->
+    <string name="gcm_defaultSenderId">513475856296</string>
+
+    <!-- server base url -->
+    <string name="server_URL">http://1-dot-doggy-door-opener.appspot.com/</string>
+
+    <!-- server endpoints -->
+    <string name="server_command">command</string>
+    <string name="server_status">report</string>
+    <string name="server_register">register</string>
+    <string name="server_unregister">unregister</string>
+    <string name="server_message">messageme</string>
+    <string name="server_image_upload">imageupload</string>
+    <string name="server_image_download">imagedownload</string>
+
+    <!-- Notifications  -->
+    <string name="notif_content_title">Doggy Door Opener</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

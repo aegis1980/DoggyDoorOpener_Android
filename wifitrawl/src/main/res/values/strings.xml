@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WIFiTrawl</string>
+    <string name="saved_devices_file_key">com.fitc.wifitrawl.SAVED_DEVICES_FILE_KEY</string>
+    <string name="saved_devices">com.fitc.wifitrawler.SAVED_DEVICES</string>
+</resources>

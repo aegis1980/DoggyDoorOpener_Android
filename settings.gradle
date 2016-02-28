@@ -1,0 +1,1 @@
+include ':DDOSystemApp', ':DDORemoteApp', ':DDOCommsLibrary', ':softmodem_audiofsk', ':uploadservice', ':wifitrawl'

@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Doggy Door Opener - Remote</string>
+    <string name="action_status">Refresh Door Status</string>
+    <string name="action_skype">Start Skype Call</string>
+    <string name="switch_opendoor">Door State</string>
+    <string name="action_network_settings">Network Settings</string>
+
+
+</resources>

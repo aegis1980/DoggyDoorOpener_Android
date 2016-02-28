@@ -1,0 +1,12 @@
+<resources xmlns:xliff="http://schemas.android.com/tools">
+    <string name="app_name">Doggy Door Opener - Control</string>
+    <string name="action_wifidevices">BT Tag Connect</string>
+    <string name="switch_opendoor">Door State</string>
+    <string name="bt_not_enabled_leaving">Bluetooth not enabled</string>
+
+    <!-- Message of the notification to indicate an active cast display connection.  [CHAR LIMIT=80] NOTE: Same text as msgid="794424023757290105" -->
+    <string name="bt_not_setup">Bluetooth Tag not setup</string>
+    <string name="bt_connected_message">Device "<xliff:g id="name">%1$s</xliff:g>" registered</string>
+    <string name="bt_in_range">Currently connected</string>
+    <string name="bt_out_of_range">Currently not detected</string>
+</resources>

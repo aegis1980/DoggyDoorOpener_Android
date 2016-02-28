@@ -1,0 +1,14 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.xi.audiofsk">
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <application android:allowBackup="true" android:label="@string/app_name"
+        android:supportsRtl="true">
+
+        <service
+            android:name="com.fitc.softmodem.FSKModemService"
+            android:exported="false" >
+        </service>
+
+    </application>
+
+</manifest>
