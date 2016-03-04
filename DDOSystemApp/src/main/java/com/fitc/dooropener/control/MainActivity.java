@@ -154,9 +154,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         // current door status from the arduino
         sendDoorTasktoArduino(CommonApplication.ControlTask.STATUS);
 
-        // Bind to LocalService
-        Intent cameraServiceIntent = new Intent(this, CameraManagerService.class);
-        bindService(cameraServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+
 
 
         // try to malke connection to a svaed device.
@@ -164,6 +162,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         attemptSavedBluetoothDeviceConnection();
 
 
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Bind to LocalService
+        Intent cameraServiceIntent = new Intent(this, CameraManagerService.class);
+        bindService(cameraServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -330,7 +337,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     mLastControlTaskCommand = command;
                     break;
                 case CommonApplication.ControlTask.PHOTO:
-                    if (mBound) mCameraManager.takePhoto();
+                    if (mBound){
+                        mCameraManager.takePhoto();
+                    } else {
+                        Toast.makeText(this, "Not bound to camera service.",Toast.LENGTH_LONG).show();
+                    }
                     break;
                 case CommonApplication.ControlTask.BT_STATUS:
 

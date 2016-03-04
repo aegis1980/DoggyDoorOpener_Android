@@ -47,6 +47,11 @@ import java.util.List;
  */
 public class VolleyAuthIntentService extends IntentService {
 
+    /**
+     * If false then we just skip the whole process.
+     */
+    private static final boolean BOTHER_WITH_AUTH = false;
+
     private static final String TAG = VolleyAuthIntentService.class.getSimpleName();
 
     public static final String ACCOUNT_EXTRA = "account";
@@ -75,8 +80,12 @@ public class VolleyAuthIntentService extends IntentService {
         mAccount = workIntent.getParcelableExtra(ACCOUNT_EXTRA);
 
         if (mAccount != null) {
-            AccountManager accountManager = AccountManager.get(this);
-            accountManager.getAuthToken(mAccount, "ah",null, false, new GetAuthTokenCallback(), null);
+            if (BOTHER_WITH_AUTH) {
+                AccountManager accountManager = AccountManager.get(this);
+                accountManager.getAuthToken(mAccount, "ah", null, false, new GetAuthTokenCallback(), null);
+            } else {
+                broadcastSuccessfulAuthIntent(true);
+            }
         } else {
             Log.e(TAG, "No account object");
         }
@@ -168,15 +177,22 @@ public class VolleyAuthIntentService extends IntentService {
         Log.d(TAG,"Cookie success: " + success);
         CommonApplication.setGoogleAccountAuthenticated(success);
         CommonApplication.setGoogleAccountCookie(theCookie);
+        broadcastSuccessfulAuthIntent(success);
 
 
+        return success;
+    }
+
+    /**
+     * Sends intent back to {@link com.fitc.dooropener.lib.BaseActivity} that auth process is successful
+     * @param success
+     */
+    private void broadcastSuccessfulAuthIntent(boolean success) {
         // broadcast result.
         Intent intent = new Intent();
         intent.setAction(CommonApplication.ACTION_AUTH_RESPONSE);
         intent.putExtra(CommonApplication.EXTRA_AUTH_RESPONSE_SUCCESS, success);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-
-        return success;
     }
 
     private void onAuthResponseError(int statusCode) {
