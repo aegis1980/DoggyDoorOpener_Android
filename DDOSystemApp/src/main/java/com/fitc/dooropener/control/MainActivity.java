@@ -9,8 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
-import android.media.AudioManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -42,19 +40,13 @@ import com.fitc.dooropener.lib.server.MapBundler;
 
 import com.fitc.dooropener.lib.server.ServerService;
 import com.fitc.dooropener.lib.ui.DoorControllerLayout;
-import com.fitc.softmodem.FSKModemService;
-import com.fitc.wifitrawl.WifiDetailSnackBar;
-import com.fitc.wifitrawl.WifiDevice;
-import com.fitc.wifitrawl.WifiDeviceListActivity;
-import com.fitc.wifitrawl.WifiDevicesTrawler;
-import com.fitc.wifitrawl.WifiTrawlerCallback;
+//import com.fitc.softmodem.FSKModemService;
+import com.fitc.usbconnectionlibrary.UsbConnectionService;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener, Response.ErrorListener, Response.Listener<String> {
 
@@ -66,19 +58,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     private TextView mDataTextView;
 
-    private TextView mBTTagCxnStatusTV, mBTTagRangeStatusTV;
+    private TextView mBTTagCxnStatusTV, mBTTagRangeStatusTV, mDoorCxnStatusTV;
     private ImageView mBTTagStatusIV;
 
 
-    private BroadcastReceiver mFSKReceiver, mCameraReceiver;
+    private BroadcastReceiver mCameraReceiver;
     private CameraManagerService mCameraManager;
+
+
 
     private boolean mBluetoothConnected;
     BluetoothAdapter mBluetoothAdapter;
     boolean mBound = false;
     private String mLastControlTaskCommand = null;
 
-    private AudioManager mAudioManager;
+
+    protected boolean mUsbConnected = false;
+
     private Snackbar mSnackBar;
     private boolean mBluetoothEnabled = false;
 
@@ -91,7 +87,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -126,7 +123,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mDataTextView = (TextView) findViewById(R.id.textView_dataincoming);
         mDataTextView.setMovementMethod(new ScrollingMovementMethod());
 
-
+        mDoorCxnStatusTV = (TextView) findViewById(R.id.textView_doorcxn) ;
 
         mBTTagCxnStatusTV = (TextView) findViewById(R.id.textView_btconnectionstatus);
         mBTTagRangeStatusTV = (TextView) findViewById(R.id.textView_btrangestatus);
@@ -145,11 +142,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         Intent camIntent = new Intent(this, CameraManagerService.class);
         startService(camIntent);
 
+
         //Log.e(TAG, CommonApplication.getEmail());
-        // Start service to do the sound modem stuff.
-        //TODO : needs to go in manifest to start on boot...or on headphone plug in.
-        Intent intent = new Intent(this, FSKModemService.class);
-        startService(intent);
+        // Start service to do the USB connectionstuff.
+        //TODO : needs to go in manifest to start on boot...or on USB plug in.
+        Intent i = new Intent(this,UsbConnectionService.class);
+        startService(i);
 
         // current door status from the arduino
         sendDoorTasktoArduino(CommonApplication.ControlTask.STATUS);
@@ -171,14 +169,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         // Bind to LocalService
         Intent cameraServiceIntent = new Intent(this, CameraManagerService.class);
         bindService(cameraServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        if (mFSKReceiver == null) mFSKReceiver = new FSKBroadcastReceiver();
-        IntentFilter intentFilter = new IntentFilter(FSKModemService.ACTION_FSKMODEM_DATA_INCOMING);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mFSKReceiver, intentFilter);
 
         if (mCameraReceiver == null) mCameraReceiver = new CameraBroadcastReceiver();
         IntentFilter intentFilter2 = new IntentFilter(CameraManagerService.ACTION_PHOTO_READY);
@@ -193,14 +183,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         intentFilter3.addAction(BluetoothLeConnectionService.ACTION_SCAN_FOR_SPECIFIC_DEVICE_FAILED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBluetoothUpdateReceiver, intentFilter3);
 
+        IntentFilter filter = new IntentFilter(UsbConnectionService.ACTION_USB_CONNECTION_STATUS_CHANGE);
+        filter.addAction(UsbConnectionService.ACTION_USB_DATA_INCOMING);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mUsbServiceReceiver, filter);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+
+
+
+        UsbConnectionService.requestConnectionStatus(this);
+
     }
 
     @Override
     public void onPause(){
         super.onPause();
-        if (mFSKReceiver != null) LocalBroadcastManager.getInstance(this).unregisterReceiver(mFSKReceiver);
-        if (mCameraReceiver != null) LocalBroadcastManager.getInstance(this).unregisterReceiver(mCameraReceiver);
-        if (mBluetoothUpdateReceiver != null) LocalBroadcastManager.getInstance(this).unregisterReceiver(mBluetoothUpdateReceiver);
 
         if (mCameraManager!=null)  mCameraManager.releaseCameraAndPreview();
     }
@@ -229,10 +229,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
                 }
                 break;
-            case WifiDeviceListActivity.REQUEST_DEVICES:
+  /*          case WifiDeviceListActivity.REQUEST_DEVICES:
                 Set<String> mWifiDevices = WifiDevice.loadSavedDevices(this);
                 // When WifiDeviceListActivity returns
-                break;
+                break;*/
             case REQUEST_ENABLE_BT:
                 // When the request to enable Bluetooth returns
                 if (resultCode == Activity.RESULT_OK) {
@@ -262,6 +262,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             unbindService(mConnection);
             mBound = false;
         }
+
+        if (mUsbServiceReceiver!=null) LocalBroadcastManager.getInstance(this).unregisterReceiver(mUsbServiceReceiver);
+        if (mCameraReceiver != null) LocalBroadcastManager.getInstance(this).unregisterReceiver(mCameraReceiver);
+        if (mBluetoothUpdateReceiver != null) LocalBroadcastManager.getInstance(this).unregisterReceiver(mBluetoothUpdateReceiver);
+
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        UsbConnectionService.requestCloseAccessory(this);
+
     }
 
     // END-OF- Activity Lifecycle
@@ -324,15 +337,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     @Override
-    public void onGcmStatus(GcmDataPayload status) {
+    public void onGcmStatus(GcmDataPayload payload) {
         Log.i(TAG, "onGcmStatus");
-        if(status.getStatusType()==GcmDataPayload.Status.COMMAND_TO_CONTROL){
-            String command = status.getStatusData();
+        if(payload.getStatusType()==GcmDataPayload.Status.COMMAND_TO_CONTROL){
+            String command = payload.getStatusData();
             switch(command){
                 case CommonApplication.ControlTask.OPEN:
                 case CommonApplication.ControlTask.CLOSE:
                 case CommonApplication.ControlTask.STATUS:
-                  mDataTextView.append("GCM INCOMING: Server Command:" + status.toString() + "\n");
+                  mDataTextView.append("GCM INCOMING: Server Command:" + payload.toString() + "\n");
                     sendDoorTasktoArduino(command);
                     mLastControlTaskCommand = command;
                     break;
@@ -416,17 +429,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
+    private void setConnectionStatus(boolean connected){
+        if (connected){
+            mDoorCxnStatusTV.setText("Door connected");
+        }else{
+            mDoorCxnStatusTV.setText("Door not connected");
+        }
+
+    }
+
     // END OF  Bluetooth helper methods
     //*************************************************************************************************************
     // START OF wifi devices
 
     /**
-     * Open {@link WifiDeviceListActivity} to set wifi devices
+     * Open o set wifi devices
      *
      */
     private  void setWifiDevices(){
-        Intent intent = new Intent(this, WifiDeviceListActivity.class);
-        startActivityForResult(intent, WifiDeviceListActivity.REQUEST_DEVICES);
+        //Intent intent = new Intent(this, ActivityMain.class);
+        //startActivityForResult(intent, 1);
     }
 
     // END OF  Wifi devcies helper methods
@@ -456,28 +478,96 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     private boolean sendDoorTasktoArduino(String doorTask){
-        Intent intent = new Intent(this, FSKModemService.class);
-        intent.setAction(FSKModemService.ACTION_FSKMODEM_DATA_TO_SEND);
+
         char data;
         switch(doorTask){
             case CommonApplication.ControlTask.OPEN:
-                data = ArduinoCommands.OUT_OPEN;
+                Door.open(this,Door.FULL_SPEED);
                 break;
             case CommonApplication.ControlTask.CLOSE:
-                data = ArduinoCommands.OUT_CLOSE;
+                Door.close(this,Door.FULL_SPEED);
                 break;
             case CommonApplication.ControlTask.REPEAT_LAST:
-                data = ArduinoCommands.OUT_REPEAT_LAST;
+                Door.repeatLast(this);
                 break;
             default:
-                data = ArduinoCommands.OUT_STATUS;
+                Door.getStatus(this);
         }
 
         mDataTextView.append("ARDUINO OUTGOING: " + doorTask + "\n");
 
-        intent.putExtra(FSKModemService.EXTRA_FSKMODEM_DATA_TO_SEND,""+data);
-        startService(intent);
         return true;
+    }
+
+    private void incomingUsbData(int len, byte[] dataPayload){
+                final char protocol =  (char) dataPayload[0];
+
+                if (protocol == Door.SYNC){
+                    char command = (char) dataPayload[1];
+                    mDataTextView.append("ARDUINO INCOMING: " + command + "\n");
+                    switch(command){
+                        case Door.IN_OPENING:
+                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.OPENING);
+                            mDoorControllerLayout.startOpenDoorAnim();
+
+                            if (mSnackBar!=null && mSnackBar.isShown()) mSnackBar.dismiss();
+                            mSnackBar = Snackbar.make(mCoordinatorLayout, "Door opening", Snackbar.LENGTH_LONG);
+                            mSnackBar.show();
+                            break;
+                        case Door.IN_CLOSING:
+                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.CLOSING);
+                            mDoorControllerLayout.startCloseDoorAnim();
+
+                            if (mSnackBar!=null && mSnackBar.isShown()) mSnackBar.dismiss();
+                            mSnackBar = Snackbar.make(mCoordinatorLayout, "Door closing", Snackbar.LENGTH_LONG);
+                            mSnackBar.show();
+                            break;
+                        case Door.IN_OPENED:
+                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.OPENED);
+                            mDoorControllerLayout.startOpenDoorAnim();
+
+                            if (mSnackBar!=null && mSnackBar.isShown()) mSnackBar.dismiss();
+                            mSnackBar = Snackbar.make(mCoordinatorLayout, "Door open", Snackbar.LENGTH_LONG);
+                            mSnackBar.show();
+
+                            // whenever door becomes opened, we send a photo.
+                            if (mBound) mCameraManager.takePhoto();
+
+                            break;
+                        case Door.IN_CLOSED:
+                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.CLOSED);
+                            mDoorControllerLayout.startCloseDoorAnim();
+
+                            if (mSnackBar!=null && mSnackBar.isShown()) mSnackBar.dismiss();
+                            mSnackBar = Snackbar.make(mCoordinatorLayout, "Door closed", Snackbar.LENGTH_LONG);
+                            mSnackBar.show();
+
+                            // whenever door becomes closed, we send a photo.
+                            if (mBound) mCameraManager.takePhoto();
+
+                            break;
+                        case Door.IN_STALLED_OPENING:
+                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.STALLED_OPENING);
+                            break;
+                        case Door.IN_STALLED_CLOSING:
+                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.STALLED_CLOSING);
+                            break;
+                        case Door.IN_OPEN_ASSIST:
+                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.OPEN_ASSIST);
+                            break;
+                        case Door.IN_CLOSE_ASSIST:
+                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.CLOSE_ASSIST);
+                            break;
+                        case Door.IN_REPEAT_LAST:
+                            if (mLastControlTaskCommand!=null) sendDoorTasktoArduino(mLastControlTaskCommand);
+                            break;
+                        default:
+                            // this means that there was a communication error.
+                            sendDoorTasktoArduino(CommonApplication.ControlTask.REPEAT_LAST);
+                            break;
+                    }
+                }
+
     }
 
     //********************************************************************************************
@@ -498,88 +588,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     /**
-     * Called when {@link FSKModemService} gets some data coming in.
-     */
-    private class FSKBroadcastReceiver extends BroadcastReceiver{
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent!=null){
-                if (intent.getAction().equals(FSKModemService.ACTION_FSKMODEM_DATA_INCOMING)){
-                    String message = intent.getStringExtra(FSKModemService.EXTRA_FSKMODEM_DATA_INCOMING);
-                    mDataTextView.append("ARDUINO INCOMING: " + message + "\n");
-                    switch(message){
-                        case ArduinoCommands.IN_OPENING:
-                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.OPENING);
-                            mDoorControllerLayout.startOpenDoorAnim();
-
-                            if (mSnackBar!=null && mSnackBar.isShown()) mSnackBar.dismiss();
-                            mSnackBar = Snackbar.make(mCoordinatorLayout, "Door opening", Snackbar.LENGTH_LONG);
-                            mSnackBar.show();
-                            break;
-                        case ArduinoCommands.IN_CLOSING:
-                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.CLOSING);
-                            mDoorControllerLayout.startCloseDoorAnim();
-
-                            if (mSnackBar!=null && mSnackBar.isShown()) mSnackBar.dismiss();
-                            mSnackBar = Snackbar.make(mCoordinatorLayout, "Door closing", Snackbar.LENGTH_LONG);
-                            mSnackBar.show();
-                            break;
-                        case ArduinoCommands.IN_OPENED:
-                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.OPENED);
-                            mDoorControllerLayout.startOpenDoorAnim();
-
-                            if (mSnackBar!=null && mSnackBar.isShown()) mSnackBar.dismiss();
-                            mSnackBar = Snackbar.make(mCoordinatorLayout, "Door open", Snackbar.LENGTH_LONG);
-                            mSnackBar.show();
-
-                            // whenever door becomes opened, we send a photo.
-                            if (mBound) mCameraManager.takePhoto();
-
-                            break;
-                        case ArduinoCommands.IN_CLOSED:
-                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.CLOSED);
-                            mDoorControllerLayout.startCloseDoorAnim();
-
-                            if (mSnackBar!=null && mSnackBar.isShown()) mSnackBar.dismiss();
-                            mSnackBar = Snackbar.make(mCoordinatorLayout, "Door closed", Snackbar.LENGTH_LONG);
-                            mSnackBar.show();
-
-                            // whenever door becomes closed, we send a photo.
-                            if (mBound) mCameraManager.takePhoto();
-
-                            break;
-                        case ArduinoCommands.IN_STALLED_OPENING:
-                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.STALLED_OPENING);
-                            break;
-                        case ArduinoCommands.IN_STALLED_CLOSING:
-                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.STALLED_CLOSING);
-                            break;
-                        case ArduinoCommands.IN_OPEN_ASSIST:
-                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.OPEN_ASSIST);
-                            break;
-                        case ArduinoCommands.IN_CLOSE_ASSIST:
-                            sendStatusToServer(CommonApplication.DOOR_STATUS, CommonApplication.DoorAction.CLOSE_ASSIST);
-                            break;
-                        case ArduinoCommands.IN_REPEAT_LAST:
-                            if (mLastControlTaskCommand!=null) sendDoorTasktoArduino(mLastControlTaskCommand);
-                                break;
-                        default:
-                            // this means that there was a communication error.
-                            // Ask the arduino to repeat last message. headset check for debugging.
-                            if (mAudioManager.isWiredHeadsetOn()) sendDoorTasktoArduino(CommonApplication.ControlTask.REPEAT_LAST);
-                            break;
-                    }
-
-
-                }
-
-            }
-        }
-    }
-
-    /**
-     * Called when {@link FSKModemService} gets some data coming in.
+     * Called when CameraService gets some data coming in.
      */
     private class CameraBroadcastReceiver extends BroadcastReceiver {
 
@@ -595,6 +604,27 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         }
     }
+
+    //*********************************************************************************************
+
+    private final BroadcastReceiver mUsbServiceReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (UsbConnectionService.ACTION_USB_CONNECTION_STATUS_CHANGE.equals(action)) {
+                mUsbConnected = intent.getBooleanExtra(UsbConnectionService.EXTRA_USB_CONNECTION_STATUS, false);
+                setConnectionStatus(mUsbConnected);
+            } else if (UsbConnectionService.ACTION_USB_DATA_INCOMING.equals(action)) {
+                int len = intent.getIntExtra(UsbConnectionService.EXTRA_USB_INCOMING_DATA_PAYLOAD_LENGTH, 0);
+                byte[] dataPayload = intent.getByteArrayExtra(UsbConnectionService.EXTRA_USB_INCOMING_DATA_PAYLOAD);
+                if (len>0){
+                    incomingUsbData(len,dataPayload);
+                }
+
+                // updateTimer(dataPayload);
+            }
+        }
+    };
 
 
     /** Handles various events fired by the {@code BluetoothLeConnectionService}
@@ -614,7 +644,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 setUiBluetoothState(true);
 
                 // Start wifi scan.
-                WifiDevicesTrawler trawler = new WifiDevicesTrawler(MainActivity.this);
+/*                WifiDevicesTrawler trawler = new WifiDevicesTrawler(MainActivity.this);
                 trawler.update(new WifiTrawlerCallback() {
                     public void onFinish(List<WifiDevice> devices) {
                         Set<String> macs = WifiDevice.loadSavedDevices(MainActivity.this);
@@ -638,13 +668,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                         }
 
                     }
-                });
+                });*/
             } else if (BluetoothLeConnectionService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mBluetoothConnected = false;
                 setUiBluetoothState(false);
 
                 // Start wifi scan.
-                WifiDevicesTrawler trawler = new WifiDevicesTrawler(MainActivity.this);
+/*                WifiDevicesTrawler trawler = new WifiDevicesTrawler(MainActivity.this);
                 trawler.update(new WifiTrawlerCallback(){
                     public void onFinish(List<WifiDevice> devices){
                         Set<String> macs = WifiDevice.loadSavedDevices(MainActivity.this);
@@ -668,7 +698,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                         }
 
                     }
-                });
+                });*/
 
 
             } else if (BluetoothLeConnectionService.ACTION_SCAN_FOR_SPECIFIC_DEVICE_FAILED.equals(action)){

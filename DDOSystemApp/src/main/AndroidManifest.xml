@@ -42,7 +42,7 @@
             android:label="@string/select_device"
             android:theme="@android:style/Theme.Holo.Dialog" />
 
-        <service android:name="com.fitc.softmodem.FSKModemService" />
+
         <service android:name=".CameraManagerService" />
         <service
             android:name=".bt.BluetoothLeConnectionService"

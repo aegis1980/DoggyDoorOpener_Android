@@ -317,6 +317,7 @@ public class CommonApplication extends Application {
     }
 
 
+
     public interface ClientType{
         public static String REMOTE="remote";
         public static String CONTROLLER="control";

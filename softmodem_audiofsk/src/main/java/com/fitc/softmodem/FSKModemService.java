@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -140,12 +141,9 @@ public class FSKModemService extends Service  {
 
             String action = intent.getAction();
             if (action != null) {
-              if (action.equals(FSKModemService.ACTION_FSKMODEM_DATA_TO_SEND)) {
-                    Message msg = mServiceHandler.obtainMessage();
-                    msg.arg1 = startId;
-                    msg.obj = intent.getStringExtra(FSKModemService.EXTRA_FSKMODEM_DATA_TO_SEND);
-
-                    mServiceHandler.sendMessage(msg);
+                if (action.equals(FSKModemService.ACTION_FSKMODEM_DATA_TO_SEND)) {
+                    String data = intent.getStringExtra(FSKModemService.EXTRA_FSKMODEM_DATA_TO_SEND);
+                    sendDataThroughModem(data, startId);
                 }
             }
         }
@@ -153,11 +151,6 @@ public class FSKModemService extends Service  {
         return START_STICKY;
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // We don't provide binding, so return null
-        return null;
-    }
 
     @Override
     public void onDestroy() {
@@ -167,7 +160,39 @@ public class FSKModemService extends Service  {
         mModem = null;
     }
 
+
     //**********************************************************************************************
+    // Helper methods
+
+    public void sendDataThroughModem(String dataToSend, int startId){
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        msg.obj = dataToSend;
+
+        mServiceHandler.sendMessage(msg);
+    }
+
+    //**********************************************************************************************
+    // Binder given to clients
+    private final IBinder mBinder = new LocalBinder();
+
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    public class LocalBinder extends Binder {
+        public FSKModemService getService() {
+            // Return this instance of FSKModemService so clients can call public methods
+            return FSKModemService.this;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
+
 
 
 }

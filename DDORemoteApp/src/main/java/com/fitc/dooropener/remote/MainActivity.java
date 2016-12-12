@@ -31,7 +31,6 @@ import com.fitc.dooropener.lib.server.ServerService;
 import com.fitc.dooropener.lib.server.VolleySingleton;
 import com.fitc.dooropener.lib.ui.DoorControllerLayout;
 import com.fitc.dooropener.lib.ui.SeekBarAnimation;
-import com.fitc.wifitrawl.WifiDetailSnackBar;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -181,7 +180,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             startActivity(sky);
         } else if (id==R.id.action_network){
             // show snackbar with wifi details.
-            WifiDetailSnackBar.make(this,mCoordinatorLayout);
+           // WifiDetailSnackBar.make(this,mCoordinatorLayout);
         }
 
         return super.onOptionsItemSelected(item);

@@ -9,12 +9,13 @@ import com.google.gson.annotations.SerializedName;
 public class GcmDataPayload {
 
 
-    public interface Status{
+    public class Status{
         public static final int GCM_REGISTER = 0;
         public static final int GCM_REGISTER_ERROR = 1;
         public static final int CONTROL_REPORT = 10;
         public static final int COMMAND_TO_CONTROL = 11;
         public static final int IMAGE_READY_TO_VIEW = 20;
+
     }
 
     @SerializedName("status_type")

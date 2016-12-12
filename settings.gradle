@@ -1,1 +1,2 @@
-include ':DDOSystemApp', ':DDORemoteApp', ':DDOCommsLibrary', ':softmodem_audiofsk', ':uploadservice', ':wifitrawl'
+include ':DDOSystemApp', ':DDORemoteApp', ':DDOCommsLibrary', ':softmodem_audiofsk',':usbconnectionlibrary',  ':uploadservice'
+project(':usbconnectionlibrary').projectDir = new File('C:/Users/Jon/Google Drive/Projects/ArduinoUSBLibrary/usbconnectionlibrary')
