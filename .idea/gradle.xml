@@ -12,7 +12,6 @@
             <option value="$PROJECT_DIR$/DDOCommsLibrary" />
             <option value="$PROJECT_DIR$/DDORemoteApp" />
             <option value="$PROJECT_DIR$/DDOSystemApp" />
-            <option value="$PROJECT_DIR$/softmodem_audiofsk" />
             <option value="$PROJECT_DIR$/uploadservice" />
             <option value="$PROJECT_DIR$/../../Projects/ArduinoUSBLibrary/usbconnectionlibrary" />
           </set>
