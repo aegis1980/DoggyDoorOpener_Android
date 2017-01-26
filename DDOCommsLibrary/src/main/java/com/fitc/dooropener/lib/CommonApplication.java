@@ -293,11 +293,11 @@ public class CommonApplication extends Application {
     }
 
     public interface ControlTask {
-        public static String OPEN="open";
-        public static String CLOSE="close";
-        public static String STATUS="status";
+        public static String DOORARDUINO_OPEN ="open";
+        public static String DOORARDUINO_CLOSE ="close";
+        public static String DOORARDUINO_STATUS ="status";
 
-        public static String PHOTO="photo";
+        public static String DEVICECAMERA_TAKEPHOTO ="photo";
         public static String REPEAT_LAST = "repeat" ;
         public static String BT_STATUS = "btstatus";
     }

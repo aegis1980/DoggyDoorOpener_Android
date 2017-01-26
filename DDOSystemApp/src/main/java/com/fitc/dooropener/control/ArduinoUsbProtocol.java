@@ -5,7 +5,7 @@ package com.fitc.dooropener.control;
  */
 public interface ArduinoUsbProtocol {
 
-   interface Door{
+   interface UsbProtocol {
       char SYNC = 'd';
 
       char OUT_CLOSE = 'c';
@@ -14,7 +14,7 @@ public interface ArduinoUsbProtocol {
       char OUT_REPEAT_LAST = 'r';
       char IN_CLOSING = '0';
       char IN_CLOSE_ASSIST = '1';
-      char  IN_CLOSED = '2';
+      char IN_CLOSED = '2';
       char IN_OPENING = '4';
       char IN_OPEN_ASSIST = '5';
       char IN_OPENED = '6';
@@ -23,4 +23,5 @@ public interface ArduinoUsbProtocol {
       char IN_REPEAT_LAST = '9';
 
    }
+
 }

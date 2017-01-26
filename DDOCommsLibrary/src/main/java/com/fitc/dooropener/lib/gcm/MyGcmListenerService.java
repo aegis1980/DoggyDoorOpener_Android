@@ -60,7 +60,7 @@ public class MyGcmListenerService extends GcmListenerService {
             Intent intent = new Intent(CommonApplication.ACTION_GCM_STATUS);
             intent.putExtra(CommonApplication.EXTRA_GCM_STATUS_JSON, json);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-
+            sendBroadcast(intent);
 
 
             // [START_EXCLUDE]

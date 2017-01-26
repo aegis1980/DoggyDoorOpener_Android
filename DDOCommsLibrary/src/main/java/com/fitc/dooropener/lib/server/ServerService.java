@@ -23,6 +23,7 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
 import com.fitc.dooropener.lib.CommonApplication;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,28 @@ public class ServerService extends Service  {
     private static final String TAG = ServerService.class.getSimpleName();
 
     private static final int INTENT_ERROR = 99991;
+
+    /**
+     * Starts UsbProtocol Task intent service.
+     * @param  statusType
+     * @param status
+     * @return
+     */
+    public static boolean sendStatusToServer(Context c, int statusType, String status) {
+        Map<String,String> params = new HashMap<>();
+        params.put(CommonApplication.EndPointParams.REQUEST_ID,ServerService.getRequestId());
+        params.put(CommonApplication.EndPointParams.FROM_EMAIL, CommonApplication.getEmail());
+        params.put(CommonApplication.EndPointParams.GCM_TOKEN,CommonApplication.getGcmRegId());
+        params.put(CommonApplication.EndPointParams.STATUS, status);
+
+        final Intent serviceIntent = new Intent(c, ServerService.class);
+        serviceIntent.setAction(CommonApplication.ACTION_SERVER_REQUEST);
+        serviceIntent.putExtra(CommonApplication.EXTRA_SERVER_REQUEST_TYPE_INT, statusType);
+        serviceIntent.putExtra(CommonApplication.BUNDLE_SERVER_REQUEST_PARAMS, MapBundler.toBundle(params));
+        // Starts the IntentService
+        c.startService(serviceIntent);
+        return true;
+    }
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;

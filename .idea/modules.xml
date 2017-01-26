@@ -6,8 +6,10 @@
       <module fileurl="file://$PROJECT_DIR$/DDORemoteApp/DDORemoteApp.iml" filepath="$PROJECT_DIR$/DDORemoteApp/DDORemoteApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/DDOSystemApp/DDOSystemApp.iml" filepath="$PROJECT_DIR$/DDOSystemApp/DDOSystemApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/DoggyDoorUSB.iml" filepath="$PROJECT_DIR$/DoggyDoorUSB.iml" />
+      <module fileurl="file://$PROJECT_DIR$/googleformuploader/googleformuploader.iml" filepath="$PROJECT_DIR$/googleformuploader/googleformuploader.iml" />
       <module fileurl="file://$PROJECT_DIR$/uploadservice/uploadservice.iml" filepath="$PROJECT_DIR$/uploadservice/uploadservice.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../Projects/ArduinoUSBLibrary/usbconnectionlibrary/usbconnectionlibrary.iml" filepath="$PROJECT_DIR$/../../Projects/ArduinoUSBLibrary/usbconnectionlibrary/usbconnectionlibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/weatherbox/weatherbox.iml" filepath="$PROJECT_DIR$/weatherbox/weatherbox.iml" />
     </modules>
   </component>
 </project>

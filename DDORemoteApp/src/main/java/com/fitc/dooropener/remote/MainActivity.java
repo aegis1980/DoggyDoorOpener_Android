@@ -13,16 +13,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
 import com.fitc.dooropener.lib.BaseActivity;
 import com.fitc.dooropener.lib.CommonApplication;
 import com.fitc.dooropener.lib.gcm.GcmDataPayload;
@@ -105,7 +102,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
               // if registered succesfully then get status of door.
               case GcmDataPayload.Status.GCM_REGISTER:
                   Log.d(TAG,"Getting Status from control");
-                  sendRequestToServer(CommonApplication.ControlTask.STATUS);
+                  sendRequestToServer(CommonApplication.ControlTask.DOORARDUINO_STATUS);
                   break;
               case GcmDataPayload.Status.CONTROL_REPORT:
                   SeekBarAnimation anim;
@@ -170,7 +167,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_status) {
-            sendRequestToServer(CommonApplication.ControlTask.STATUS);
+            sendRequestToServer(CommonApplication.ControlTask.DOORARDUINO_STATUS);
             Snackbar.make(mCoordinatorLayout, "Requesting Current Door Status", Snackbar.LENGTH_SHORT)
                     .setAction("Action", null).show();
             return true;
@@ -215,11 +212,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     String task;
         if (id==mDoorOpenButton.getId()) {
-            sendRequestToServer(CommonApplication.ControlTask.OPEN);
+            sendRequestToServer(CommonApplication.ControlTask.DOORARDUINO_OPEN);
         } else if (id==mDoorCloseButton.getId()) {
-            sendRequestToServer(CommonApplication.ControlTask.CLOSE);
+            sendRequestToServer(CommonApplication.ControlTask.DOORARDUINO_CLOSE);
         } else if (id==mfloatingActionButton.getId()){
-            sendRequestToServer(CommonApplication.ControlTask.PHOTO);
+            sendRequestToServer(CommonApplication.ControlTask.DEVICECAMERA_TAKEPHOTO);
             mSnackBar = Snackbar.make(mCoordinatorLayout, "Sending command to take photo", Snackbar.LENGTH_LONG);
             mSnackBar.show();
         }

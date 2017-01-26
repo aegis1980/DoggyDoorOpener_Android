@@ -33,7 +33,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private BroadcastReceiver mAuthReceiver;
     private ServerResponseReceiver mServerResponseReceiver;
     private GcmRegisterReceiver mGcmRegisterReceiver;
-    private StatusBroadcastReceiver mGcmStatusReceiver;
+    private GcmStatusBroadcastReceiver mGcmStatusReceiver;
 
     protected CoordinatorLayout mCoordinatorLayout;
     private String mAccountName;
@@ -80,7 +80,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         IntentFilter intentFilter2 = new IntentFilter(GcmRegisterService.ACTION_GCM_REGISTER);
         LocalBroadcastManager.getInstance(this).registerReceiver(mGcmRegisterReceiver, intentFilter2);
 
-        if (mGcmStatusReceiver == null) mGcmStatusReceiver = new StatusBroadcastReceiver();
+        if (mGcmStatusReceiver == null) mGcmStatusReceiver = new GcmStatusBroadcastReceiver();
         IntentFilter intentFilter3 = new IntentFilter(CommonApplication.ACTION_GCM_STATUS);
         LocalBroadcastManager.getInstance(this).registerReceiver(mGcmStatusReceiver, intentFilter3);
 
@@ -247,7 +247,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     /**
      * Gets intent local broadcast by {@link com.fitc.dooropener.lib.gcm.MyGcmListenerService} when a gcm message comes in.
      */
-    private class StatusBroadcastReceiver extends BroadcastReceiver {
+    private class GcmStatusBroadcastReceiver extends BroadcastReceiver {
 
         private static final String TAG = "StatusBroadcastReceiver";
 

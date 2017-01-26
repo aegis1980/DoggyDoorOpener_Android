@@ -22,19 +22,20 @@
         card_view:cardCornerRadius="4dp"
         card_view:cardPreventCornerOverlap="false">
 
-            <TextView
-                android:id="@+id/textView_doorcxn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
+        <TextView
+            android:id="@+id/textView_usbcxn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp" />
 
-        </android.support.v7.widget.CardView>
+    </android.support.v7.widget.CardView>
 
-    <include layout="@layout/door_controller_cardview"
-        android:id="@+id/door_controller_card_view"/>
+    <include
+        android:id="@+id/door_controller_card_view"
+        layout="@layout/door_controller_cardview" />
 
     <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/cardview_bluetooth"
+        android:id="@+id/cardview_weatherbox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardUseCompatPadding="true"
@@ -47,34 +48,12 @@
             android:layout_height="match_parent"
             android:layout_margin="8dp">
 
-            <ImageView
+            <Button
+                android:id="@+id/button_wbsync"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView_btstatus"
-                android:src="@drawable/bt_not_setup"
-                android:layout_centerVertical="true"
-                android:layout_alignParentStart="true"
-                android:layout_marginRight="6dp"/>
+                android:text="SYNC" />
 
-            <TextView
-                android:id="@+id/textView_btconnectionstatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:text="@string/bt_connected_message"
-                android:fontFamily="sans-serif-light"
-                android:layout_toRightOf="@+id/imageView_btstatus"
-                />
-
-            <TextView
-                android:id="@+id/textView_btrangestatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:text="holder"
-                android:fontFamily="sans-serif-light"
-                android:layout_toRightOf="@+id/imageView_btstatus"
-                android:layout_below="@+id/textView_btconnectionstatus"/>
 
         </RelativeLayout>
 
@@ -88,13 +67,13 @@
         card_view:cardCornerRadius="4dp"
         card_view:cardPreventCornerOverlap="false">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars = "vertical"
-        android:text=""
-        android:id="@+id/textView_dataincoming"
-        android:layout_centerHorizontal="true" />
+        <TextView
+            android:id="@+id/textView_dataincoming"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:scrollbars="vertical"
+            android:text="" />
 
     </android.support.v7.widget.CardView>
 

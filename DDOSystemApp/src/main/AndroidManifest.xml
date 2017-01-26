@@ -3,10 +3,14 @@
     package="com.fitc.dooropener.control">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!--
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    -->
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -35,26 +39,68 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
             </intent-filter>
 
-            <meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+            <meta-data
+                android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
                 android:resource="@xml/accessory_filter" />
         </activity>
+
+        <!--
         <activity
             android:name=".bt.BluetoothLeDeviceListActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/select_device"
             android:theme="@android:style/Theme.Holo.Dialog" />
 
-
-        <service android:name=".CameraManagerService" />
         <service
             android:name=".bt.BluetoothLeConnectionService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+            -->
+
+        <service android:name=".DeviceCameraService" />
+
+
+        <receiver
+            android:name="com.fitc.weatherbox.WeatherBoxBroadcastReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.fitc.usb.USB_DATA_INCOMING" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.fitc.usbconnectionlibrary.UsbConnectionBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+                android:resource="@xml/accessory_filter" />
+        </receiver>
+
+        <receiver
+            android:name=".DoorUsbDataBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.fitc.usb.USB_DATA_INCOMING" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".IncomingGcmBroadcastReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.fitc.dooropener.lib.gcm.ACTION_GCM_STATUS" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

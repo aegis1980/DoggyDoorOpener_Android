@@ -27,4 +27,5 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':DDOCommsLibrary')
     compile project(':usbconnectionlibrary')
+    compile project(':weatherbox')
 }

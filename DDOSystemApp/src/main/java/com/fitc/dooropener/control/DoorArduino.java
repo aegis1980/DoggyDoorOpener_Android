@@ -2,13 +2,14 @@ package com.fitc.dooropener.control;
 
 import android.content.Context;
 
+import com.fitc.dooropener.lib.CommonApplication;
 import com.fitc.usbconnectionlibrary.UsbConnectionService;
 
 /**
  * Created by Jon on 26/11/2016.
  */
 
-public class Door implements  ArduinoUsbProtocol.Door{
+public class DoorArduino implements ArduinoUsbProtocol.UsbProtocol {
 
     /**
      * Greatest PWM value you can sent to Arduino pin
@@ -17,11 +18,44 @@ public class Door implements  ArduinoUsbProtocol.Door{
     private static final int MINIMUM_VALUE = 0;
     public static final int FULL_SPEED = MAXIMUM_VALUE;
 
-    private Door(){
+    private static String sLastControlTaskCommand = null;
+
+    private DoorArduino(){
 
     }
 
-    public static void open(Context c,int speed) {
+    public static boolean sendTask(Context c, String doorTask){
+
+        char data;
+        switch(doorTask){
+            case CommonApplication.ControlTask.DOORARDUINO_OPEN:
+                DoorArduino.open(c, DoorArduino.FULL_SPEED);
+                break;
+            case CommonApplication.ControlTask.DOORARDUINO_CLOSE:
+                DoorArduino.close(c, DoorArduino.FULL_SPEED);
+                break;
+            case CommonApplication.ControlTask.REPEAT_LAST:
+                DoorArduino.repeatLast(c);
+                break;
+            default:
+                DoorArduino.getStatus(c);
+        }
+
+     //   mDataTextView.append("ARDUINO OUTGOING: " + doorTask + "\n");
+
+        return true;
+    }
+
+    private static void open(Context c){
+        open(c, DoorArduino.FULL_SPEED);
+    }
+
+
+    private static void close(Context c){
+        close(c, DoorArduino.FULL_SPEED);
+    }
+
+    private static void open(Context c,int speed) {
         speed = modulate(speed);
         byte[] msg = new byte[3];
         msg[0] = SYNC;
@@ -30,7 +64,7 @@ public class Door implements  ArduinoUsbProtocol.Door{
         UsbConnectionService.sendData(c, msg);
     }
 
-    public static void close(Context c,int speed) {
+    private static void close(Context c,int speed) {
         speed = modulate(speed);
         byte[] msg = new byte[3];
         msg[0] = SYNC;
@@ -39,14 +73,14 @@ public class Door implements  ArduinoUsbProtocol.Door{
         UsbConnectionService.sendData(c, msg);
     }
 
-    public static void getStatus(Context c) {
+    private static void getStatus(Context c) {
         byte[] msg = new byte[3];
         msg[0] = SYNC;
         msg[1] = OUT_STATUS;
         UsbConnectionService.sendData(c, msg);
     }
 
-    public static  void repeatLast(Context c){
+    private static  void repeatLast(Context c){
         byte[] msg = new byte[3];
         msg[0] = SYNC;
         msg[1] = OUT_REPEAT_LAST;
@@ -70,4 +104,6 @@ public class Door implements  ArduinoUsbProtocol.Door{
 
         return b;
     }
+
+
 }
